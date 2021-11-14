@@ -6,6 +6,8 @@
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 
+#include "blink_led.h"
+
 
 void setup() {
     pinMode(D0, OUTPUT);
@@ -26,9 +28,6 @@ void setup() {
 }
 
 void loop() {
-    digitalWrite(D0, HIGH);
+    blinkLed(500);
     Serial.println("Idle...");
-    delay(500);
-    digitalWrite(D0, LOW);
-    delay(500);
 }
