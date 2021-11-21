@@ -7,6 +7,7 @@
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 
 #include "blink_led.h"
+#include <ESP8266Ping.h>
 
 
 void setup() {
@@ -14,20 +15,23 @@ void setup() {
     Serial.begin(9600);
 
     WiFiManager wifiManager;
-    //reset saved settings
-    //wifiManager.resetSettings();
+    //wifiManager.resetSettings(); // Reset saved settings
 
-    //fetches ssid and pass from eeprom and tries to connect
-    //if it does not connect it starts an access point with the specified name
-    //here  "AutoConnectAP"
-    //and goes into a blocking loop awaiting configuration
+    // Fetches ssid and pass from eeprom and tries to connect
+    // If it does not connect it starts an access point with the specified name (here  "AutoConnectAP") 
+    // And goes into a blocking loop awaiting configuration
     wifiManager.autoConnect("AutoConnectAP");
 
-    //if you get here you have connected to the WiFi
     Serial.println("Connected!");
 }
 
 void loop() {
     blinkLed(500);
-    Serial.println("Idle...");
+
+    Serial.print("Pinging host ");
+    if(Ping.ping("192.168.1.45")) {
+        Serial.println("Success!!");
+    } else {
+        Serial.println("Error :(");
+    }
 }
