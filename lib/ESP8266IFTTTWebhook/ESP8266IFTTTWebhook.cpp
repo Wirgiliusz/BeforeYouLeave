@@ -29,8 +29,9 @@ void ESP8266IFTTTWebhook::trigger(String value1, String value2)
 void ESP8266IFTTTWebhook::trigger(String value1, String value2, String value3)
 {
 	HTTPClient http;
+    WiFiClient client; // ! CRASHING THE ESP
 
-    http.begin("http://maker.ifttt.com/trigger/" + _EVENT_NAME + "/with/key/" + _API_KEY);
+    http.begin(client, "http://maker.ifttt.com/trigger/" + _EVENT_NAME + "/with/key/" + _API_KEY);
     http.addHeader("Content-Type", "application/json");
 	
 	String values = "{\"value1\":\"" + value1 + "\", \"value2\":\"" + value2 + "\", \"value3\":\"" + value3 + "\"}";
