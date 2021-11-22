@@ -14,7 +14,8 @@
 
 bool triggered = false;
 
-ESP8266IFTTTWebhook ifttt (WEBHOOK_NAME, API_KEY);
+WiFiClient client;
+ESP8266IFTTTWebhook ifttt(WEBHOOK_NAME, API_KEY, client);
 
 void setup() {
     pinMode(D0, OUTPUT);
@@ -34,15 +35,14 @@ void setup() {
 void loop() {
     blinkLed(500);
 
-    Serial.print("Pinging host ");
-
+    Serial.print("Pinging host: ");
     if(Ping.ping("192.168.1.45")) {
-        Serial.println("Success!!");
+        Serial.println("Success!");
         if (!triggered) {
             ifttt.trigger("Found you");
             triggered = true;
         }
     } else {
-        Serial.println("Error :(");
+        Serial.println("No response");
     }
 }

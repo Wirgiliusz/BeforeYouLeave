@@ -2,10 +2,11 @@
 #include "Arduino.h"
 #include "ESP8266IFTTTWebhook.h"
 
-ESP8266IFTTTWebhook::ESP8266IFTTTWebhook (String EVENT_NAME, String API_KEY)
+ESP8266IFTTTWebhook::ESP8266IFTTTWebhook (String EVENT_NAME, String API_KEY, WiFiClient client)
 {
 	_EVENT_NAME = EVENT_NAME;
 	_API_KEY = API_KEY;
+    _client = client;
 }
 
 
@@ -29,14 +30,10 @@ void ESP8266IFTTTWebhook::trigger(String value1, String value2)
 void ESP8266IFTTTWebhook::trigger(String value1, String value2, String value3)
 {
 	HTTPClient http;
-    WiFiClient client; // ! CRASHING THE ESP
-
-    http.begin(client, "http://maker.ifttt.com/trigger/" + _EVENT_NAME + "/with/key/" + _API_KEY);
+    http.begin(_client, "http://maker.ifttt.com/trigger/" + _EVENT_NAME + "/with/key/" + _API_KEY);
     http.addHeader("Content-Type", "application/json");
 	
 	String values = "{\"value1\":\"" + value1 + "\", \"value2\":\"" + value2 + "\", \"value3\":\"" + value3 + "\"}";
-	
-    int httpCode = http.POST(values);
-
+    http.POST(values);
     http.end();
 }
