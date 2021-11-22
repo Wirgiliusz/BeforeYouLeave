@@ -6,9 +6,14 @@
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 
-#include "blink_led.h"
 #include <ESP8266Ping.h>
 
+#include "blink_led.h"
+#include "ESP8266IFTTTWebhook.h"
+#include "ifttt_config.h"
+
+
+ESP8266IFTTTWebhook ifttt (WEBHOOK_NAME, API_KEY);
 
 void setup() {
     pinMode(D0, OUTPUT);
