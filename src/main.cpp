@@ -13,6 +13,8 @@
 #include "ifttt_config.h"
 
 bool triggered = false;
+int no_reposnse_count = 0;
+bool missing_item = false;
 
 WiFiClient client;
 ESP8266IFTTTWebhook ifttt(WEBHOOK_NAME, API_KEY, client);
@@ -33,16 +35,23 @@ void setup() {
 }
 
 void loop() {
-    blinkLed(500);
+    missing_item = !digitalRead(D6);
 
-    Serial.print("Pinging host: ");
-    if(Ping.ping("192.168.1.45")) {
-        Serial.println("Success!");
-        if (!triggered) {
-            ifttt.trigger("Found you");
-            triggered = true;
+    if (missing_item) {
+        Serial.print("Pinging host: ");
+
+        if(Ping.ping("192.168.1.45")) {
+            Serial.println("Success!");
+        } else {
+            Serial.println("No response");
+            no_reposnse_count++;
+            if (no_reposnse_count >= 3 && !triggered) {
+                ifttt.trigger("KEYS");
+                triggered = true;
+                no_reposnse_count = 0;
+            }
         }
-    } else {
-        Serial.println("No response");
     }
+    
+    delay(1000);
 }
