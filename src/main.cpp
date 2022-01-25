@@ -24,6 +24,7 @@ ESP8266IFTTTWebhook ifttt(WEBHOOK_NAME, API_KEY, client);
 void setup() {
     pinMode(D0, INPUT);
     pinMode(D6, INPUT);
+    pinMode(D3, OUTPUT);
     Serial.begin(9600);
 
     WiFiManager wifiManager;
@@ -59,6 +60,7 @@ void loop() {
     }
 
     if (missing_item) {
+        digitalWrite(D3, HIGH);
         Serial.print("Missing item detected.. Pinging host status: ");
 
         if(Ping.ping("192.168.1.45")) {
@@ -74,6 +76,8 @@ void loop() {
                 no_response_count = 0;
             }
         }
+    } else {
+        digitalWrite(D3, LOW);
     }
     
     delay(1000);
