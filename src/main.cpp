@@ -8,6 +8,8 @@
 #include "ESP8266IFTTTWebhook.h"
 #include "ifttt_config.h"
 
+#define DEBOUNCE_TIME_MILLISECONDS 50
+
 #define BTN_LEFT_PIN D2
 #define BTN_MID_PIN D1
 #define BTN_RIGHT_PIN D0
@@ -21,6 +23,9 @@
 #define HOOK_RIGHT_PIN D8
 
 void checkButtonsAndtoggleOverride();
+IRAM_ATTR void leftHookInt();
+IRAM_ATTR void midHookInt();
+IRAM_ATTR void rightHookInt();
 
 bool triggered = false;
 int no_response_count = 0;
@@ -33,6 +38,11 @@ bool override_right = false;
 bool toggle_override_left = false;
 bool toggle_override_mid = false;
 bool toggle_override_right = false;
+
+bool led_left_on = false;
+bool led_mid_on = false;
+bool led_right_on = false;
+
 
 WiFiClient client;
 ESP8266IFTTTWebhook ifttt(WEBHOOK_NAME, API_KEY, client);
@@ -49,6 +59,11 @@ void setup() {
     pinMode(LED_LEFT_PIN, OUTPUT);
     pinMode(LED_MID_PIN, OUTPUT);
     pinMode(LED_RIGHT_PIN, OUTPUT);
+
+    attachInterrupt(digitalPinToInterrupt(HOOK_LEFT_PIN), leftHookInt, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(HOOK_MID_PIN), midHookInt, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(HOOK_RIGHT_PIN), rightHookInt, CHANGE);
+    
     Serial.begin(9600);
 
     WiFiManager wifiManager;
@@ -60,6 +75,10 @@ void setup() {
     wifiManager.autoConnect("AutoConnectAP");
 
     Serial.println("Connected!");
+
+    digitalWrite(LED_LEFT_PIN, !digitalRead(HOOK_LEFT_PIN));
+    digitalWrite(LED_MID_PIN, !digitalRead(HOOK_MID_PIN));
+    digitalWrite(LED_RIGHT_PIN, !digitalRead(HOOK_RIGHT_PIN));
 }
 
 void loop() {
@@ -165,4 +184,63 @@ void checkButtonsAndtoggleOverride() {
         }
         Serial.println(override_right);
     }
+}
+
+IRAM_ATTR void leftHookInt() {
+    static unsigned long last_interrupt_time = 0;
+    unsigned long interrupt_time = millis();
+    
+    if (interrupt_time - last_interrupt_time > DEBOUNCE_TIME_MILLISECONDS) {
+        digitalWrite(LED_LEFT_PIN, !digitalRead(HOOK_LEFT_PIN));
+        /*
+        if (led_left_on) {
+            digitalWrite(LED_LEFT_PIN, LOW);
+            led_left_on = false;
+        } else {
+            digitalWrite(LED_LEFT_PIN, HIGH);
+            led_left_on = true;
+        }
+        */
+    }
+    last_interrupt_time = interrupt_time;
+}
+
+IRAM_ATTR void midHookInt() {
+    static unsigned long last_interrupt_time = 0;
+    unsigned long interrupt_time = millis();
+
+    if (interrupt_time - last_interrupt_time > DEBOUNCE_TIME_MILLISECONDS) {
+        digitalWrite(LED_MID_PIN, !digitalRead(HOOK_MID_PIN));
+        /*
+        if (led_mid_on) {
+            digitalWrite(LED_MID_PIN, LOW);
+            led_mid_on = false;
+        } else {
+            digitalWrite(LED_MID_PIN, HIGH);
+            led_mid_on = true;
+        }
+        */
+    }
+    last_interrupt_time = interrupt_time;
+
+}
+
+IRAM_ATTR void rightHookInt() {
+    static unsigned long last_interrupt_time = 0;
+    unsigned long interrupt_time = millis();
+    
+    if (interrupt_time - last_interrupt_time > DEBOUNCE_TIME_MILLISECONDS) {
+        digitalWrite(LED_RIGHT_PIN, !digitalRead(HOOK_RIGHT_PIN));
+        /*
+        if (led_right_on) {
+            digitalWrite(LED_RIGHT_PIN, LOW);
+            led_right_on = false;
+        } else {
+            digitalWrite(LED_RIGHT_PIN, HIGH);
+            led_right_on = true;
+        }
+        */
+    }
+    last_interrupt_time = interrupt_time;
+
 }
