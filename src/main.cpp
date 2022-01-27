@@ -8,9 +8,9 @@
 #include "ESP8266IFTTTWebhook.h"
 #include "ifttt_config.h"
 
-#define BTN_LEFT_PIN D0
+#define BTN_LEFT_PIN D2
 #define BTN_MID_PIN D1
-#define BTN_RIGHT_PIN D2
+#define BTN_RIGHT_PIN D0
 
 #define LED_LEFT_PIN D4
 #define LED_MID_PIN D3
