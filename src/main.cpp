@@ -136,7 +136,7 @@ void loop() {
     if (missing_item_left || missing_item_mid || missing_item_right) {
         Serial.print("Missing item detected.. Pinging host status: ");
 
-        if(Ping.ping("192.168.1.45")) {
+        if(Ping.ping(IP_TO_PING)) {
             Serial.println("Success! User at home");
         } else {
             Serial.print("No response: ");
