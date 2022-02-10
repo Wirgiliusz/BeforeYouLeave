@@ -151,7 +151,8 @@ void loop() {
         }
     }
     
-    delay(500);
+    Serial.print("\n");
+    delay(1000);
 }
 
 void checkButtonsAndtoggleOverride() {
