@@ -3,7 +3,8 @@
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
-#include <ESP8266Ping.h>
+//#include <ESP8266Ping.h>
+#include <AsyncPing.h>
 #include "blink_led.h"
 #include "ESP8266IFTTTWebhook.h"
 #include "ifttt_config.h"
@@ -43,9 +44,13 @@ bool led_left_on = false;
 bool led_mid_on = false;
 bool led_right_on = false;
 
+bool is_pinging = false;
+bool no_response = false;
+
 
 WiFiClient client;
 ESP8266IFTTTWebhook ifttt(WEBHOOK_NAME, API_KEY, client);
+AsyncPing ping;
 
 void setup() {
     pinMode(BTN_LEFT_PIN, INPUT);
@@ -79,6 +84,28 @@ void setup() {
     digitalWrite(LED_LEFT_PIN, !digitalRead(HOOK_LEFT_PIN));
     digitalWrite(LED_MID_PIN, !digitalRead(HOOK_MID_PIN));
     digitalWrite(LED_RIGHT_PIN, !digitalRead(HOOK_RIGHT_PIN));
+
+    ping.on(true, [](const AsyncPingResponse& response) {
+        IPAddress addr(response.addr);
+
+        return false;
+    });
+
+    /* callback for end of ping */
+    ping.on(false, [](const AsyncPingResponse& response) {
+        IPAddress addr(response.addr);
+
+        if (response.total_recv < 1) {
+            no_response = true;
+        } else {
+            no_response = false;
+        }
+
+        is_pinging = false;
+
+        return true;
+    });
+
 }
 
 void loop() {
@@ -134,20 +161,22 @@ void loop() {
     }
 
     if (missing_item_left || missing_item_mid || missing_item_right) {
-        Serial.print("Missing item detected.. Pinging host status: ");
+        Serial.print("Missing item detected.. ");
 
-        if(Ping.ping(IP_TO_PING)) {
-            Serial.println("Success! User at home");
+        if (!is_pinging) {
+            Serial.print("Pinging host!\n");
+            ping.begin(IP_TO_PING);
+            is_pinging = true;
         } else {
-            Serial.print("No response: ");
-            no_response_count++;
-            Serial.println(no_response_count);
-            if (no_response_count >= 3 && !triggered) {  
-                Serial.println("User missing.. Triggering notification");
-                ifttt.trigger("KEYS");
-                triggered = true;
-                no_response_count = 0;
-            }
+            Serial.print("Pinging already in progress.\n");
+        }
+
+        if (!no_response) {
+            Serial.println("Success! User at home");
+        } else if (!triggered) { 
+            Serial.println("User missing.. Triggering notification");
+            ifttt.trigger("KEYS");
+            triggered = true;
         }
     }
     
