@@ -3,7 +3,6 @@
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
-//#include <ESP8266Ping.h>
 #include <AsyncPing.h>
 #include "blink_led.h"
 #include "ESP8266IFTTTWebhook.h"
@@ -26,9 +25,10 @@
 void checkButtonsAndToggleOverride();
 bool readButton(uint8_t button);
 bool debounceButton(uint8_t button);
+void checkHooksAndMarkMissingItems();
+void checkMissingItemsAndLightLeds();
 
 bool triggered = false;
-int no_response_count = 0;
 bool missing_item_left = false;
 bool missing_item_mid = false;
 bool missing_item_right = false;
@@ -39,17 +39,13 @@ bool toggle_override_left = false;
 bool toggle_override_mid = false;
 bool toggle_override_right = false;
 
-bool led_left_on = false;
-bool led_mid_on = false;
-bool led_right_on = false;
-
 bool is_pinging = false;
 bool no_response = false;
-
 
 WiFiClient client;
 ESP8266IFTTTWebhook ifttt(WEBHOOK_NAME, API_KEY, client);
 AsyncPing ping;
+
 
 void setup() {
     pinMode(BTN_LEFT_PIN, INPUT);
@@ -74,16 +70,13 @@ void setup() {
     // If it does not connect it starts an access point with the specified name (here  "AutoConnectAP") 
     // And goes into a blocking loop awaiting configuration
     wifiManager.autoConnect("AutoConnectAP");
-
     Serial.println("Connected!");
 
     digitalWrite(LED_LEFT_PIN, !digitalRead(HOOK_LEFT_PIN));
     digitalWrite(LED_MID_PIN, !digitalRead(HOOK_MID_PIN));
     digitalWrite(LED_RIGHT_PIN, !digitalRead(HOOK_RIGHT_PIN));
 
-
-
-    /* callback for end of ping */
+    /* Callback for end of ping */
     ping.on(false, [](const AsyncPingResponse& response) {
         IPAddress addr(response.addr);
 
@@ -94,63 +87,15 @@ void setup() {
         }
 
         is_pinging = false;
-
         return true;
     });
-
 }
 
+
 void loop() {
-    toggle_override_left = readButton(BTN_LEFT_PIN);
-    toggle_override_mid = readButton(BTN_MID_PIN);
-    toggle_override_right = readButton(BTN_RIGHT_PIN);
-    
     checkButtonsAndToggleOverride();
-
-    if (!override_left) {
-        Serial.print("Checking left hook.. Current status: ");
-        missing_item_left = !digitalRead(HOOK_LEFT_PIN);
-        Serial.println(missing_item_left);
-    } else {
-        Serial.println("Override detected.. Ignoring left hook status");
-        missing_item_left = false;
-    }
-
-    if (!override_mid) {
-        Serial.print("Checking middle hook.. Current status: ");
-        missing_item_mid = !digitalRead(HOOK_MID_PIN);
-        Serial.println(missing_item_mid);
-    } else {
-        Serial.println("Override detected.. Ignoring middle hook status");
-        missing_item_mid = false;
-    }
-
-    if (!override_right) {
-        Serial.print("Checking right hook.. Current status: ");
-        missing_item_right = !digitalRead(HOOK_RIGHT_PIN);
-        Serial.println(missing_item_right);
-    } else {
-        Serial.println("Override detected.. Ignoring right hook status");
-        missing_item_right = false;
-    }
-
-    if (missing_item_left) {
-        digitalWrite(LED_LEFT_PIN, HIGH);
-    } else {
-        digitalWrite(LED_LEFT_PIN, LOW);
-    }
-
-    if (missing_item_mid) {
-        digitalWrite(LED_MID_PIN, HIGH);
-    } else {
-        digitalWrite(LED_MID_PIN, LOW);
-    }
-
-    if (missing_item_right) {
-        digitalWrite(LED_RIGHT_PIN, HIGH);
-    } else {
-        digitalWrite(LED_RIGHT_PIN, LOW);
-    }
+    checkHooksAndMarkMissingItems();
+    checkMissingItemsAndLightLeds();
 
     if (missing_item_left || missing_item_mid || missing_item_right) {
         Serial.print("Missing item detected.. ");
@@ -176,6 +121,10 @@ void loop() {
 }
 
 void checkButtonsAndToggleOverride() {
+    toggle_override_left = readButton(BTN_LEFT_PIN);
+    toggle_override_mid = readButton(BTN_MID_PIN);
+    toggle_override_right = readButton(BTN_RIGHT_PIN);
+    
     if (toggle_override_left) {
         Serial.print("Toggled override for left hook.. Current status: ");
         if (override_left) {
@@ -260,4 +209,53 @@ bool debounceButton(uint8_t button) {
 
     last_read_time[idx] = read_time;
     return false;
+}
+
+void checkHooksAndMarkMissingItems() {
+    if (!override_left) {
+        Serial.print("Checking left hook.. Current status: ");
+        missing_item_left = !digitalRead(HOOK_LEFT_PIN);
+        Serial.println(missing_item_left);
+    } else {
+        Serial.println("Override detected.. Ignoring left hook status");
+        missing_item_left = false;
+    }
+
+    if (!override_mid) {
+        Serial.print("Checking middle hook.. Current status: ");
+        missing_item_mid = !digitalRead(HOOK_MID_PIN);
+        Serial.println(missing_item_mid);
+    } else {
+        Serial.println("Override detected.. Ignoring middle hook status");
+        missing_item_mid = false;
+    }
+
+    if (!override_right) {
+        Serial.print("Checking right hook.. Current status: ");
+        missing_item_right = !digitalRead(HOOK_RIGHT_PIN);
+        Serial.println(missing_item_right);
+    } else {
+        Serial.println("Override detected.. Ignoring right hook status");
+        missing_item_right = false;
+    }
+}
+
+void checkMissingItemsAndLightLeds() {
+    if (missing_item_left) {
+        digitalWrite(LED_LEFT_PIN, HIGH);
+    } else {
+        digitalWrite(LED_LEFT_PIN, LOW);
+    }
+
+    if (missing_item_mid) {
+        digitalWrite(LED_MID_PIN, HIGH);
+    } else {
+        digitalWrite(LED_MID_PIN, LOW);
+    }
+
+    if (missing_item_right) {
+        digitalWrite(LED_RIGHT_PIN, HIGH);
+    } else {
+        digitalWrite(LED_RIGHT_PIN, LOW);
+    }
 }
