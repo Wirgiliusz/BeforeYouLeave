@@ -9,7 +9,7 @@
 #include "ESP8266IFTTTWebhook.h"
 #include "ifttt_config.h"
 
-#define DEBOUNCE_TIME_MILLISECONDS 50
+#define DEBOUNCE_TIME_MILLISECONDS 20
 
 #define BTN_LEFT_PIN D2
 #define BTN_MID_PIN D1
@@ -23,10 +23,9 @@
 #define HOOK_MID_PIN D7
 #define HOOK_RIGHT_PIN D8
 
-void checkButtonsAndtoggleOverride();
-IRAM_ATTR void leftHookInt();
-IRAM_ATTR void midHookInt();
-IRAM_ATTR void rightHookInt();
+void checkButtonsAndToggleOverride();
+bool readButton(uint8_t button);
+bool debounceButton(uint8_t button);
 
 bool triggered = false;
 int no_response_count = 0;
@@ -65,9 +64,6 @@ void setup() {
     pinMode(LED_MID_PIN, OUTPUT);
     pinMode(LED_RIGHT_PIN, OUTPUT);
 
-    attachInterrupt(digitalPinToInterrupt(HOOK_LEFT_PIN), leftHookInt, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(HOOK_MID_PIN), midHookInt, CHANGE);
-    attachInterrupt(digitalPinToInterrupt(HOOK_RIGHT_PIN), rightHookInt, CHANGE);
     
     Serial.begin(9600);
 
@@ -85,11 +81,7 @@ void setup() {
     digitalWrite(LED_MID_PIN, !digitalRead(HOOK_MID_PIN));
     digitalWrite(LED_RIGHT_PIN, !digitalRead(HOOK_RIGHT_PIN));
 
-    ping.on(true, [](const AsyncPingResponse& response) {
-        IPAddress addr(response.addr);
 
-        return false;
-    });
 
     /* callback for end of ping */
     ping.on(false, [](const AsyncPingResponse& response) {
@@ -109,11 +101,11 @@ void setup() {
 }
 
 void loop() {
-    toggle_override_left = digitalRead(BTN_LEFT_PIN);
-    toggle_override_mid = digitalRead(BTN_MID_PIN);
-    toggle_override_right = digitalRead(BTN_RIGHT_PIN);
+    toggle_override_left = readButton(BTN_LEFT_PIN);
+    toggle_override_mid = readButton(BTN_MID_PIN);
+    toggle_override_right = readButton(BTN_RIGHT_PIN);
     
-    checkButtonsAndtoggleOverride();
+    checkButtonsAndToggleOverride();
 
     if (!override_left) {
         Serial.print("Checking left hook.. Current status: ");
@@ -181,10 +173,9 @@ void loop() {
     }
     
     Serial.print("\n");
-    delay(1000);
 }
 
-void checkButtonsAndtoggleOverride() {
+void checkButtonsAndToggleOverride() {
     if (toggle_override_left) {
         Serial.print("Toggled override for left hook.. Current status: ");
         if (override_left) {
@@ -216,61 +207,57 @@ void checkButtonsAndtoggleOverride() {
     }
 }
 
-IRAM_ATTR void leftHookInt() {
-    static unsigned long last_interrupt_time = 0;
-    unsigned long interrupt_time = millis();
-    
-    if (interrupt_time - last_interrupt_time > DEBOUNCE_TIME_MILLISECONDS) {
-        digitalWrite(LED_LEFT_PIN, !digitalRead(HOOK_LEFT_PIN));
-        /*
-        if (led_left_on) {
-            digitalWrite(LED_LEFT_PIN, LOW);
-            led_left_on = false;
-        } else {
-            digitalWrite(LED_LEFT_PIN, HIGH);
-            led_left_on = true;
-        }
-        */
+bool readButton(uint8_t button) {
+    static bool last_pressed_status[3] = {false, false, false};
+    size_t idx = 0;
+
+    switch (button) {
+        case BTN_LEFT_PIN:
+            idx = 0;
+            break;
+        case BTN_MID_PIN:
+            idx = 1;
+            break;
+        case BTN_RIGHT_PIN:
+            idx = 2;
+            break;
     }
-    last_interrupt_time = interrupt_time;
+
+    bool pressed_status = digitalRead(button);
+    if (pressed_status) {
+        if (pressed_status != last_pressed_status[idx]) {
+            last_pressed_status[idx] = debounceButton(button);
+            return last_pressed_status[idx];
+        } else {
+            return false;
+        }
+    } else {
+        last_pressed_status[idx] = false;
+        return false;
+    }
 }
 
-IRAM_ATTR void midHookInt() {
-    static unsigned long last_interrupt_time = 0;
-    unsigned long interrupt_time = millis();
+bool debounceButton(uint8_t button) {
+    static unsigned long last_read_time[3] = {0, 0, 0};
+    size_t idx = 0;
 
-    if (interrupt_time - last_interrupt_time > DEBOUNCE_TIME_MILLISECONDS) {
-        digitalWrite(LED_MID_PIN, !digitalRead(HOOK_MID_PIN));
-        /*
-        if (led_mid_on) {
-            digitalWrite(LED_MID_PIN, LOW);
-            led_mid_on = false;
-        } else {
-            digitalWrite(LED_MID_PIN, HIGH);
-            led_mid_on = true;
-        }
-        */
+    switch (button) {
+        case BTN_LEFT_PIN:
+            idx = 0;
+            break;
+        case BTN_MID_PIN:
+            idx = 1;
+            break;
+        case BTN_RIGHT_PIN:
+            idx = 2;
+            break;
     }
-    last_interrupt_time = interrupt_time;
 
-}
-
-IRAM_ATTR void rightHookInt() {
-    static unsigned long last_interrupt_time = 0;
-    unsigned long interrupt_time = millis();
-    
-    if (interrupt_time - last_interrupt_time > DEBOUNCE_TIME_MILLISECONDS) {
-        digitalWrite(LED_RIGHT_PIN, !digitalRead(HOOK_RIGHT_PIN));
-        /*
-        if (led_right_on) {
-            digitalWrite(LED_RIGHT_PIN, LOW);
-            led_right_on = false;
-        } else {
-            digitalWrite(LED_RIGHT_PIN, HIGH);
-            led_right_on = true;
-        }
-        */
+    unsigned long read_time = millis();
+    if (read_time - last_read_time[idx] > DEBOUNCE_TIME_MILLISECONDS) {
+        return true;
     }
-    last_interrupt_time = interrupt_time;
 
+    last_read_time[idx] = read_time;
+    return false;
 }
