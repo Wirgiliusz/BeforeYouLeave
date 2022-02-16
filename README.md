@@ -25,8 +25,10 @@ items and does not want to be notified about it.
 ## Results
 
 ### Device
+<img src=/docs/imgs/device_missing_item.jpg width="400"> <img src=/docs/imgs/device_on.jpg width="400"> 
 
 ### Electronic diagram
+<img src=/docs/imgs/electronic_diagram.png width="700">
 
 
 
