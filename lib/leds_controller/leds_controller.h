@@ -1,7 +1,9 @@
 #pragma once
 #include <Arduino.h>
 
-#define LED_LEFT_PIN D4
-#define LED_MID_PIN D3
-#define LED_RIGHT_PIN D5
+#define LED_LEFT D4
+#define LED_MID D3
+#define LED_RIGHT D5
 
+void ledsControllerInit();
+void turnLedOff(uint8_t led);

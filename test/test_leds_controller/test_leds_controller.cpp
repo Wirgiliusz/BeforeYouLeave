@@ -14,9 +14,9 @@ void tearDown(void) {
 
 void test_leds_off_after_initialization() {
     ledsControllerInit();
-    TEST_ASSERT_EQUAL(LOW, digitalRead(LED_LEFT_PIN));
-    TEST_ASSERT_EQUAL(LOW, digitalRead(LED_MID_PIN));
-    TEST_ASSERT_EQUAL(LOW, digitalRead(LED_RIGHT_PIN));
+    TEST_ASSERT_EQUAL(LOW, digitalRead(LED_LEFT));
+    TEST_ASSERT_EQUAL(LOW, digitalRead(LED_MID));
+    TEST_ASSERT_EQUAL(LOW, digitalRead(LED_RIGHT));
 }
 
 
