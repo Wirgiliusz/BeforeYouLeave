@@ -4,19 +4,15 @@
 #include <ESP8266WebServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 #include <AsyncPing.h>
-#include "blink_led.h"
 #include "ESP8266IFTTTWebhook.h"
 #include "ifttt_config.h"
+#include "leds_controller.h"
 
 #define DEBOUNCE_TIME_MILLISECONDS 20
 
 #define BTN_LEFT_PIN D2
 #define BTN_MID_PIN D1
 #define BTN_RIGHT_PIN D0
-
-#define LED_LEFT_PIN D4
-#define LED_MID_PIN D3
-#define LED_RIGHT_PIN D5
 
 #define HOOK_LEFT_PIN D6
 #define HOOK_MID_PIN D7
@@ -56,11 +52,8 @@ void setup() {
     pinMode(HOOK_MID_PIN, INPUT);
     pinMode(HOOK_RIGHT_PIN, INPUT);
 
-    pinMode(LED_LEFT_PIN, OUTPUT);
-    pinMode(LED_MID_PIN, OUTPUT);
-    pinMode(LED_RIGHT_PIN, OUTPUT);
+    ledsControllerInit();
 
-    
     Serial.begin(9600);
 
     WiFiManager wifiManager;
@@ -71,10 +64,6 @@ void setup() {
     // And goes into a blocking loop awaiting configuration
     wifiManager.autoConnect("AutoConnectAP");
     Serial.println("Connected!");
-
-    digitalWrite(LED_LEFT_PIN, !digitalRead(HOOK_LEFT_PIN));
-    digitalWrite(LED_MID_PIN, !digitalRead(HOOK_MID_PIN));
-    digitalWrite(LED_RIGHT_PIN, !digitalRead(HOOK_RIGHT_PIN));
 
     /* Callback for end of ping */
     ping.on(false, [](const AsyncPingResponse& response) {
@@ -242,20 +231,22 @@ void checkHooksAndMarkMissingItems() {
 
 void checkMissingItemsAndLightLeds() {
     if (missing_item_left) {
-        digitalWrite(LED_LEFT_PIN, HIGH);
+        turnLedOn(LED_LEFT);
     } else {
-        digitalWrite(LED_LEFT_PIN, LOW);
+        turnLedOff(LED_LEFT);
     }
 
     if (missing_item_mid) {
-        digitalWrite(LED_MID_PIN, HIGH);
+        turnLedOn(LED_MID);
+
     } else {
-        digitalWrite(LED_MID_PIN, LOW);
+        turnLedOff(LED_MID);
     }
 
     if (missing_item_right) {
-        digitalWrite(LED_RIGHT_PIN, HIGH);
+        turnLedOn(LED_RIGHT);
+
     } else {
-        digitalWrite(LED_RIGHT_PIN, LOW);
+        turnLedOff(LED_RIGHT);
     }
 }
