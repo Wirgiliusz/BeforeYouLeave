@@ -8,13 +8,8 @@
 #include "ifttt_config.h"
 #include "leds_controller.h"
 #include "buttons_controller.h"
+#include "hooks_controller.h"
 
-
-#define HOOK_LEFT_PIN D6
-#define HOOK_MID_PIN D7
-#define HOOK_RIGHT_PIN D8
-
-void checkHooksAndMarkMissingItems();
 void checkMissingItemsAndLightLeds();
 
 bool triggered = false;
@@ -25,14 +20,11 @@ WiFiClient client;
 ESP8266IFTTTWebhook ifttt(WEBHOOK_NAME, API_KEY, client);
 AsyncPing ping;
 struct ButtonsController buttons_controller;
+struct HooksController hooks_controller;
 
 void setup() {
     buttonsControllerInit(&buttons_controller);
-    
-    pinMode(HOOK_LEFT_PIN, INPUT);
-    pinMode(HOOK_MID_PIN, INPUT);
-    pinMode(HOOK_RIGHT_PIN, INPUT);
-
+    hooksControllerInit(&hooks_controller);
     ledsControllerInit();
 
     Serial.begin(9600);
@@ -64,10 +56,10 @@ void setup() {
 
 void loop() {
     checkButtonsAndToggleOverride(&buttons_controller);
-    checkHooksAndMarkMissingItems();
-    checkMissingItemsAndLightLeds();
+    checkHooksAndMarkMissingItems(&hooks_controller, &buttons_controller);
+    checkMissingItemsAndLightLeds(&hooks_controller);
 
-    if (missing_item_left || missing_item_mid || missing_item_right) {
+    if (hooks_controller.missing_item_left || hooks_controller.missing_item_mid || hooks_controller.missing_item_right) {
         Serial.print("Missing item detected.. ");
 
         if (!is_pinging) {
@@ -88,55 +80,4 @@ void loop() {
     }
     
     Serial.print("\n");
-}
-
-void checkHooksAndMarkMissingItems() {
-    if (!override_left) {
-        Serial.print("Checking left hook.. Current status: ");
-        missing_item_left = !digitalRead(HOOK_LEFT_PIN);
-        Serial.println(missing_item_left);
-    } else {
-        Serial.println("Override detected.. Ignoring left hook status");
-        missing_item_left = false;
-    }
-
-    if (!override_mid) {
-        Serial.print("Checking middle hook.. Current status: ");
-        missing_item_mid = !digitalRead(HOOK_MID_PIN);
-        Serial.println(missing_item_mid);
-    } else {
-        Serial.println("Override detected.. Ignoring middle hook status");
-        missing_item_mid = false;
-    }
-
-    if (!override_right) {
-        Serial.print("Checking right hook.. Current status: ");
-        missing_item_right = !digitalRead(HOOK_RIGHT_PIN);
-        Serial.println(missing_item_right);
-    } else {
-        Serial.println("Override detected.. Ignoring right hook status");
-        missing_item_right = false;
-    }
-}
-
-void checkMissingItemsAndLightLeds() {
-    if (missing_item_left) {
-        turnLedOn(LED_LEFT);
-    } else {
-        turnLedOff(LED_LEFT);
-    }
-
-    if (missing_item_mid) {
-        turnLedOn(LED_MID);
-
-    } else {
-        turnLedOff(LED_MID);
-    }
-
-    if (missing_item_right) {
-        turnLedOn(LED_RIGHT);
-
-    } else {
-        turnLedOff(LED_RIGHT);
-    }
 }

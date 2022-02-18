@@ -1,5 +1,6 @@
 #pragma once
 #include <Arduino.h>
+#include "buttons_controller.h"
 
 #define HOOK_LEFT D6
 #define HOOK_MID D7
@@ -13,3 +14,4 @@ struct HooksController {
 };
 
 void hooksControllerInit(struct HooksController *hooks_controller);
+void checkHooksAndMarkMissingItems(struct HooksController *hooks_controller, struct ButtonsController *buttons_controller);
