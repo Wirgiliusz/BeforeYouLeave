@@ -12,7 +12,7 @@ void tearDown(void) {
 }
 
 
-void test_toggles_and_overrides_false_after_initialization() {
+void test_overrides_false_after_initialization() {
     struct ButtonsController buttons_controller;
     buttonsControllerInit(&buttons_controller);
 
@@ -81,7 +81,7 @@ void setup() {
     delay(2000); // NOTE!!! Wait for >2 secs if board doesn't support software reset via Serial.DTR/RTS
     UNITY_BEGIN();    // Start unit testing
 
-    RUN_TEST(test_toggles_and_overrides_false_after_initialization);
+    RUN_TEST(test_overrides_false_after_initialization);
     RUN_TEST(test_override_true_after_turn_on);
     RUN_TEST(test_override_false_after_turn_off);
     RUN_TEST(test_override_mixed);
