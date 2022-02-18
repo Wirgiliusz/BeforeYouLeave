@@ -32,6 +32,38 @@ void overrideTurnOff(struct ButtonsController *buttons_controller, uint8_t butto
     }
 }
 
+void overrideToggle(struct ButtonsController *buttons_controller, uint8_t button) {
+    switch (button) {
+        case BTN_LEFT:
+            Serial.print("Toggled override for left hook.. Current status: ");
+            if (buttons_controller->override_left) {
+                overrideTurnOff(buttons_controller, BTN_LEFT);
+            } else {
+                overrideTurnOn(buttons_controller, BTN_LEFT);
+            }
+            Serial.println(buttons_controller->override_left);
+            break;
+        case BTN_MID:
+            Serial.print("Toggled override for middle hook.. Current status: ");
+            if (buttons_controller->override_mid) {
+                overrideTurnOff(buttons_controller, BTN_MID);
+            } else {
+                overrideTurnOn(buttons_controller, BTN_MID);
+            }
+            Serial.println(buttons_controller->override_mid);
+            break;
+        case BTN_RIGHT:
+            Serial.print("Toggled override for right hook.. Current status: ");
+            if (buttons_controller->override_right) {
+                overrideTurnOff(buttons_controller, BTN_RIGHT);
+            } else {
+                overrideTurnOn(buttons_controller, BTN_RIGHT);
+            }
+            Serial.println(buttons_controller->override_right);
+            break;
+    }
+}
+
 void buttonsControllerInit(struct ButtonsController *buttons_controller) {
     pinMode(BTN_LEFT, INPUT);
     pinMode(BTN_MID, INPUT);
@@ -48,33 +80,15 @@ void buttonsControllerInit(struct ButtonsController *buttons_controller) {
 
 void checkButtonsAndToggleOverride(struct ButtonsController *buttons_controller) {
     if (isButtonPressed(BTN_LEFT)) {
-        Serial.print("Toggled override for left hook.. Current status: ");
-        if (buttons_controller->override_left) {
-            buttons_controller->override_left = false;
-        } else {
-            buttons_controller->override_left = true;
-        }
-        Serial.println(buttons_controller->override_left);
+        overrideToggle(buttons_controller, BTN_LEFT);
     }
 
     if (isButtonPressed(BTN_MID)) {
-        Serial.print("Toggled override for middle hook.. Current status: ");
-        if (buttons_controller->override_mid) {
-            buttons_controller->override_mid = false;
-        } else {
-            buttons_controller->override_mid = true;
-        }
-        Serial.println(buttons_controller->override_mid);
+        overrideToggle(buttons_controller, BTN_MID);
     }
 
     if (isButtonPressed(BTN_RIGHT)) {
-        Serial.print("Toggled override for right hook.. Current status: ");
-        if (buttons_controller->override_right) {
-            buttons_controller->override_right = false;
-        } else {
-            buttons_controller->override_right = true;
-        }
-        Serial.println(buttons_controller->override_right);
+        overrideToggle(buttons_controller, BTN_RIGHT);
     }
 }
 
