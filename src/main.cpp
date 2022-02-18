@@ -10,7 +10,7 @@
 #include "buttons_controller.h"
 #include "hooks_controller.h"
 
-void checkMissingItemsAndLightLeds();
+void checkMissingItemsAndTriggerNotification();
 
 bool triggered = false;
 bool is_pinging = false;
@@ -31,10 +31,6 @@ void setup() {
 
     WiFiManager wifiManager;
     //wifiManager.resetSettings(); // Reset saved settings
-
-    // Fetches ssid and pass from eeprom and tries to connect
-    // If it does not connect it starts an access point with the specified name (here  "AutoConnectAP") 
-    // And goes into a blocking loop awaiting configuration
     wifiManager.autoConnect("AutoConnectAP");
     Serial.println("Connected!");
 
@@ -53,12 +49,16 @@ void setup() {
     });
 }
 
-
 void loop() {
     checkButtonsAndToggleOverride(&buttons_controller);
     checkHooksAndMarkMissingItems(&hooks_controller, &buttons_controller);
     checkMissingItemsAndLightLeds(&hooks_controller);
+    checkMissingItemsAndTriggerNotification();
 
+    Serial.print("\n");
+}
+
+void checkMissingItemsAndTriggerNotification() {
     if (hooks_controller.missing_item_left || hooks_controller.missing_item_mid || hooks_controller.missing_item_right) {
         Serial.print("Missing item detected.. ");
 
@@ -78,6 +78,4 @@ void loop() {
             triggered = true;
         }
     }
-    
-    Serial.print("\n");
 }
