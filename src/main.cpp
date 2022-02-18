@@ -7,12 +7,8 @@
 #include "ESP8266IFTTTWebhook.h"
 #include "ifttt_config.h"
 #include "leds_controller.h"
+#include "buttons_controller.h"
 
-#define DEBOUNCE_TIME_MILLISECONDS 20
-
-#define BTN_LEFT_PIN D2
-#define BTN_MID_PIN D1
-#define BTN_RIGHT_PIN D0
 
 #define HOOK_LEFT_PIN D6
 #define HOOK_MID_PIN D7
@@ -28,12 +24,8 @@ bool triggered = false;
 bool missing_item_left = false;
 bool missing_item_mid = false;
 bool missing_item_right = false;
-bool override_left = false;
-bool override_mid = false;
-bool override_right = false;
-bool toggle_override_left = false;
-bool toggle_override_mid = false;
-bool toggle_override_right = false;
+
+
 
 bool is_pinging = false;
 bool no_response = false;
@@ -44,9 +36,7 @@ AsyncPing ping;
 
 
 void setup() {
-    pinMode(BTN_LEFT_PIN, INPUT);
-    pinMode(BTN_MID_PIN, INPUT);
-    pinMode(BTN_RIGHT_PIN, INPUT);
+    buttonsControllerInit();
     
     pinMode(HOOK_LEFT_PIN, INPUT);
     pinMode(HOOK_MID_PIN, INPUT);
@@ -107,97 +97,6 @@ void loop() {
     }
     
     Serial.print("\n");
-}
-
-void checkButtonsAndToggleOverride() {
-    toggle_override_left = readButton(BTN_LEFT_PIN);
-    toggle_override_mid = readButton(BTN_MID_PIN);
-    toggle_override_right = readButton(BTN_RIGHT_PIN);
-    
-    if (toggle_override_left) {
-        Serial.print("Toggled override for left hook.. Current status: ");
-        if (override_left) {
-            override_left = false;
-        } else {
-            override_left = true;
-        }
-        Serial.println(override_left);
-    }
-
-    if (toggle_override_mid) {
-        Serial.print("Toggled override for middle hook.. Current status: ");
-        if (override_mid) {
-            override_mid = false;
-        } else {
-            override_mid = true;
-        }
-        Serial.println(override_mid);
-    }
-
-    if (toggle_override_right) {
-        Serial.print("Toggled override for right hook.. Current status: ");
-        if (override_right) {
-            override_right = false;
-        } else {
-            override_right = true;
-        }
-        Serial.println(override_right);
-    }
-}
-
-bool readButton(uint8_t button) {
-    static bool last_pressed_status[3] = {false, false, false};
-    size_t idx = 0;
-
-    switch (button) {
-        case BTN_LEFT_PIN:
-            idx = 0;
-            break;
-        case BTN_MID_PIN:
-            idx = 1;
-            break;
-        case BTN_RIGHT_PIN:
-            idx = 2;
-            break;
-    }
-
-    bool pressed_status = digitalRead(button);
-    if (pressed_status) {
-        if (pressed_status != last_pressed_status[idx]) {
-            last_pressed_status[idx] = debounceButton(button);
-            return last_pressed_status[idx];
-        } else {
-            return false;
-        }
-    } else {
-        last_pressed_status[idx] = false;
-        return false;
-    }
-}
-
-bool debounceButton(uint8_t button) {
-    static unsigned long last_read_time[3] = {0, 0, 0};
-    size_t idx = 0;
-
-    switch (button) {
-        case BTN_LEFT_PIN:
-            idx = 0;
-            break;
-        case BTN_MID_PIN:
-            idx = 1;
-            break;
-        case BTN_RIGHT_PIN:
-            idx = 2;
-            break;
-    }
-
-    unsigned long read_time = millis();
-    if (read_time - last_read_time[idx] > DEBOUNCE_TIME_MILLISECONDS) {
-        return true;
-    }
-
-    last_read_time[idx] = read_time;
-    return false;
 }
 
 void checkHooksAndMarkMissingItems() {
