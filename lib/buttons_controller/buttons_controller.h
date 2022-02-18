@@ -19,3 +19,4 @@ struct ButtonsController {
 
 void buttonsControllerInit(struct ButtonsController *buttons_controller);
 void checkButtonsAndToggleOverride(struct ButtonsController *buttons_controller);
+void overrideTurnOn(struct ButtonsController *buttons_controller, uint8_t button);

@@ -4,6 +4,19 @@
 static bool readButton(uint8_t button);
 static bool debounceButton(uint8_t button);
 
+void overrideTurnOn(struct ButtonsController *buttons_controller, uint8_t button) {
+    switch (button) {
+        case BTN_LEFT:
+            buttons_controller->override_left = true;
+            break;
+        case BTN_MID:
+            buttons_controller->override_mid = true;
+            break;
+        case BTN_RIGHT:
+            buttons_controller->override_right = true;
+            break;
+    }
+}
 
 void buttonsControllerInit(struct ButtonsController *buttons_controller) {
     pinMode(BTN_LEFT, INPUT);

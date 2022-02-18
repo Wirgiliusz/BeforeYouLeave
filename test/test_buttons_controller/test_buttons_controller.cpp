@@ -43,6 +43,7 @@ void setup() {
     UNITY_BEGIN();    // Start unit testing
 
     RUN_TEST(test_toggles_and_overrides_false_after_initialization);
+    RUN_TEST(test_override_true_after_turn_on);
 
 
     UNITY_END(); // Stop unit testing
