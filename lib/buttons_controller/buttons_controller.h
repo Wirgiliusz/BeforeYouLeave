@@ -17,5 +17,5 @@ struct ButtonsController {
     bool override_right;
 };
 
-void buttonsControllerInit();
-void checkButtonsAndToggleOverride();
+void buttonsControllerInit(struct ButtonsController *buttons_controller);
+void checkButtonsAndToggleOverride(struct ButtonsController *buttons_controller);

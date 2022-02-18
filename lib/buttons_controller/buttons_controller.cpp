@@ -5,13 +5,21 @@ static bool readButton(uint8_t button);
 static bool debounceButton(uint8_t button);
 
 
-void buttonsControllerInit() {
+void buttonsControllerInit(struct ButtonsController *buttons_controller) {
     pinMode(BTN_LEFT, INPUT);
     pinMode(BTN_MID, INPUT);
     pinMode(BTN_RIGHT, INPUT);
+
+    buttons_controller->toggle_override_left = false;
+    buttons_controller->toggle_override_mid = false;
+    buttons_controller->toggle_override_right = false;
+
+    buttons_controller->override_left = false;
+    buttons_controller->override_mid = false;
+    buttons_controller->override_right = false;
 }
 
-void checkButtonsAndToggleOverride(ButtonsController *buttons_controller) {
+void checkButtonsAndToggleOverride(struct ButtonsController *buttons_controller) {
     buttons_controller->toggle_override_left = readButton(BTN_LEFT);
     buttons_controller->toggle_override_mid = readButton(BTN_MID);
     buttons_controller->toggle_override_right = readButton(BTN_RIGHT);
