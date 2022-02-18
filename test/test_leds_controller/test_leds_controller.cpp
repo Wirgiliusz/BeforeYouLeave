@@ -19,6 +19,16 @@ void test_leds_off_after_initialization() {
     TEST_ASSERT_EQUAL(LOW, digitalRead(LED_RIGHT));
 }
 
+void test_leds_on_after_turning_on() {
+    turnLedOn(LED_LEFT);
+    turnLedOn(LED_MID);
+    turnLedOn(LED_RIGHT);
+
+    TEST_ASSERT_EQUAL(HIGH, digitalRead(LED_LEFT));
+    TEST_ASSERT_EQUAL(HIGH, digitalRead(LED_MID));
+    TEST_ASSERT_EQUAL(HIGH, digitalRead(LED_RIGHT));
+}
+
 
 void setup() {
     delay(2000); // NOTE!!! Wait for >2 secs if board doesn't support software reset via Serial.DTR/RTS
