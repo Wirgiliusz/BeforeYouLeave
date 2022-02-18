@@ -13,3 +13,7 @@ void ledsControllerInit() {
 void turnLedOff(uint8_t led) {
     digitalWrite(led, LOW);
 }
+
+void turnLedOn(uint8_t led) {
+    digitalWrite(led, HIGH);
+}

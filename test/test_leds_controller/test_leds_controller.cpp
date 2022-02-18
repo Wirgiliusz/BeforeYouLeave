@@ -36,6 +36,8 @@ void setup() {
 
     RUN_TEST(test_leds_off_after_initialization);
     delay(100);
+    RUN_TEST(test_leds_on_after_turning_on);
+    delay(100);
 
     UNITY_END(); // Stop unit testing
 }

@@ -7,3 +7,4 @@
 
 void ledsControllerInit();
 void turnLedOff(uint8_t led);
+void turnLedOn(uint8_t led);
