@@ -18,6 +18,20 @@ void overrideTurnOn(struct ButtonsController *buttons_controller, uint8_t button
     }
 }
 
+void overrideTurnOff(struct ButtonsController *buttons_controller, uint8_t button) {
+    switch (button) {
+        case BTN_LEFT:
+            buttons_controller->override_left = false;
+            break;
+        case BTN_MID:
+            buttons_controller->override_mid = false;
+            break;
+        case BTN_RIGHT:
+            buttons_controller->override_right = false;
+            break;
+    }
+}
+
 void buttonsControllerInit(struct ButtonsController *buttons_controller) {
     pinMode(BTN_LEFT, INPUT);
     pinMode(BTN_MID, INPUT);

@@ -70,6 +70,8 @@ void setup() {
 
     RUN_TEST(test_toggles_and_overrides_false_after_initialization);
     RUN_TEST(test_override_true_after_turn_on);
+    RUN_TEST(test_override_false_after_turn_off);
+    RUN_TEST(test_override_mixed);
 
 
     UNITY_END(); // Stop unit testing
