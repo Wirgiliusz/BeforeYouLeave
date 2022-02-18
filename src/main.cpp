@@ -14,9 +14,6 @@
 #define HOOK_MID_PIN D7
 #define HOOK_RIGHT_PIN D8
 
-void checkButtonsAndToggleOverride();
-bool readButton(uint8_t button);
-bool debounceButton(uint8_t button);
 void checkHooksAndMarkMissingItems();
 void checkMissingItemsAndLightLeds();
 
@@ -72,7 +69,7 @@ void setup() {
 
 
 void loop() {
-    checkButtonsAndToggleOverride();
+    checkButtonsAndToggleOverride(&buttons_controller);
     checkHooksAndMarkMissingItems();
     checkMissingItemsAndLightLeds();
 
