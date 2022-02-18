@@ -18,12 +18,6 @@ void checkHooksAndMarkMissingItems();
 void checkMissingItemsAndLightLeds();
 
 bool triggered = false;
-bool missing_item_left = false;
-bool missing_item_mid = false;
-bool missing_item_right = false;
-
-
-
 bool is_pinging = false;
 bool no_response = false;
 
