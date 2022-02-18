@@ -33,10 +33,10 @@ bool no_response = false;
 WiFiClient client;
 ESP8266IFTTTWebhook ifttt(WEBHOOK_NAME, API_KEY, client);
 AsyncPing ping;
-
+struct ButtonsController buttons_controller;
 
 void setup() {
-    buttonsControllerInit();
+    buttonsControllerInit(&buttons_controller);
     
     pinMode(HOOK_LEFT_PIN, INPUT);
     pinMode(HOOK_MID_PIN, INPUT);

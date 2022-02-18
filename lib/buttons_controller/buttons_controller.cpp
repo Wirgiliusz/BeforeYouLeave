@@ -4,31 +4,28 @@
 static bool isButtonPressed(uint8_t button);
 static bool debounceButton(uint8_t button);
 
-void overrideTurnOn(struct ButtonsController *buttons_controller, uint8_t button) {
-    switch (button) {
-        case BTN_LEFT:
-            buttons_controller->override_left = true;
-            break;
-        case BTN_MID:
-            buttons_controller->override_mid = true;
-            break;
-        case BTN_RIGHT:
-            buttons_controller->override_right = true;
-            break;
-    }
+
+void buttonsControllerInit(struct ButtonsController *buttons_controller) {
+    pinMode(BTN_LEFT, INPUT);
+    pinMode(BTN_MID, INPUT);
+    pinMode(BTN_RIGHT, INPUT);
+
+    buttons_controller->override_left = false;
+    buttons_controller->override_mid = false;
+    buttons_controller->override_right = false;
 }
 
-void overrideTurnOff(struct ButtonsController *buttons_controller, uint8_t button) {
-    switch (button) {
-        case BTN_LEFT:
-            buttons_controller->override_left = false;
-            break;
-        case BTN_MID:
-            buttons_controller->override_mid = false;
-            break;
-        case BTN_RIGHT:
-            buttons_controller->override_right = false;
-            break;
+void checkButtonsAndToggleOverride(struct ButtonsController *buttons_controller) {
+    if (isButtonPressed(BTN_LEFT)) {
+        overrideToggle(buttons_controller, BTN_LEFT);
+    }
+
+    if (isButtonPressed(BTN_MID)) {
+        overrideToggle(buttons_controller, BTN_MID);
+    }
+
+    if (isButtonPressed(BTN_RIGHT)) {
+        overrideToggle(buttons_controller, BTN_RIGHT);
     }
 }
 
@@ -64,31 +61,31 @@ void overrideToggle(struct ButtonsController *buttons_controller, uint8_t button
     }
 }
 
-void buttonsControllerInit(struct ButtonsController *buttons_controller) {
-    pinMode(BTN_LEFT, INPUT);
-    pinMode(BTN_MID, INPUT);
-    pinMode(BTN_RIGHT, INPUT);
-
-    buttons_controller->toggle_override_left = false;
-    buttons_controller->toggle_override_mid = false;
-    buttons_controller->toggle_override_right = false;
-
-    buttons_controller->override_left = false;
-    buttons_controller->override_mid = false;
-    buttons_controller->override_right = false;
+void overrideTurnOn(struct ButtonsController *buttons_controller, uint8_t button) {
+    switch (button) {
+        case BTN_LEFT:
+            buttons_controller->override_left = true;
+            break;
+        case BTN_MID:
+            buttons_controller->override_mid = true;
+            break;
+        case BTN_RIGHT:
+            buttons_controller->override_right = true;
+            break;
+    }
 }
 
-void checkButtonsAndToggleOverride(struct ButtonsController *buttons_controller) {
-    if (isButtonPressed(BTN_LEFT)) {
-        overrideToggle(buttons_controller, BTN_LEFT);
-    }
-
-    if (isButtonPressed(BTN_MID)) {
-        overrideToggle(buttons_controller, BTN_MID);
-    }
-
-    if (isButtonPressed(BTN_RIGHT)) {
-        overrideToggle(buttons_controller, BTN_RIGHT);
+void overrideTurnOff(struct ButtonsController *buttons_controller, uint8_t button) {
+    switch (button) {
+        case BTN_LEFT:
+            buttons_controller->override_left = false;
+            break;
+        case BTN_MID:
+            buttons_controller->override_mid = false;
+            break;
+        case BTN_RIGHT:
+            buttons_controller->override_right = false;
+            break;
     }
 }
 

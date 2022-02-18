@@ -8,10 +8,6 @@
 
 
 struct ButtonsController {
-    bool toggle_override_left;
-    bool toggle_override_mid;
-    bool toggle_override_right;
-
     bool override_left;
     bool override_mid;
     bool override_right;
