@@ -16,10 +16,6 @@ void test_toggles_and_overrides_false_after_initialization() {
     struct ButtonsController buttons_controller;
     buttonsControllerInit(&buttons_controller);
 
-    TEST_ASSERT_FALSE(buttons_controller.toggle_override_left);
-    TEST_ASSERT_FALSE(buttons_controller.toggle_override_mid);
-    TEST_ASSERT_FALSE(buttons_controller.toggle_override_right);
-
     TEST_ASSERT_FALSE(buttons_controller.override_left);
     TEST_ASSERT_FALSE(buttons_controller.override_mid);
     TEST_ASSERT_FALSE(buttons_controller.override_right);
